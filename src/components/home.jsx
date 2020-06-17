@@ -1,4 +1,8 @@
 import React, { useState } from "react"
+import { db, auth } from "../util/firebase"
+import keygen from "keygenerator"
+
+// Material UI
 import Grid from "@material-ui/core/Grid"
 import Button from "@material-ui/core/Button"
 import TextField from "@material-ui/core/TextField"
@@ -12,6 +16,9 @@ import Paper from "@material-ui/core/Paper"
 function Home() {
   const [openJoin, setOpenJoin] = useState(false)
   const [openCreate, setOpenCreate] = useState(false)
+  const [name, setName] = useState("")
+  const [code, setCode] = useState("")
+  const [loading, setLoading] = useState(false)
 
   const handleJoinSubmit = (e) => {
     e.preventDefault()
@@ -20,7 +27,38 @@ function Home() {
 
   const handleCreateSubmit = (e) => {
     e.preventDefault()
+    setLoading(true)
     console.log("Submitted")
+    auth.signInAnonymously().then(() => {
+      auth.currentUser.updateProfile({
+        displayName: name,
+      })
+      console.log(auth.currentUser)
+      let lobbyID = keygen._({
+        forceUppercase: true,
+        length: 5,
+        numbers: false,
+      })
+      console.log(lobbyID)
+      db.collection("lobbies")
+        .doc(lobbyID)
+        .set({
+          users: [
+            {
+              name: auth.currentUser.displayName,
+              points: 0,
+              isReady: false,
+            },
+          ],
+          currentLetters: [],
+          roundNumber: 0,
+          status: "waiting",
+        })
+        .then(() => {
+          setLoading(false)
+          window.location = `/lobbies/${lobbyID}`
+        })
+    })
   }
 
   return (
@@ -69,6 +107,8 @@ function Home() {
             <TextField
               autoFocus
               id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               label="Name"
               type="text"
               fullWidth
@@ -76,6 +116,8 @@ function Home() {
             />
             <TextField
               id="code"
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
               label="Access Code"
               type="text"
               fullWidth
@@ -86,7 +128,12 @@ function Home() {
             <Button onClick={() => setOpenJoin(false)} color="secondary">
               Cancel
             </Button>
-            <Button type="submit" color="primary" variant="contained">
+            <Button
+              type="submit"
+              color="primary"
+              variant="contained"
+              disabled={loading}
+            >
               Submit
             </Button>
           </DialogActions>
@@ -97,10 +144,14 @@ function Home() {
         <DialogTitle>Create Game</DialogTitle>
         <form onSubmit={handleCreateSubmit}>
           <DialogContent>
-            <DialogContentText>Create a game</DialogContentText>
+            <DialogContentText>
+              Create a game and play with a friend!
+            </DialogContentText>
             <TextField
               autoFocus
               id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               label="Name"
               type="text"
               fullWidth
@@ -111,7 +162,12 @@ function Home() {
             <Button onClick={() => setOpenCreate(false)} color="secondary">
               Cancel
             </Button>
-            <Button type="submit" color="primary" variant="contained">
+            <Button
+              type="submit"
+              color="primary"
+              variant="contained"
+              disabled={loading}
+            >
               Submit
             </Button>
           </DialogActions>
