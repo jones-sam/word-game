@@ -7,6 +7,7 @@ import DialogActions from "@material-ui/core/DialogActions"
 import DialogContent from "@material-ui/core/DialogContent"
 import DialogContentText from "@material-ui/core/DialogContentText"
 import DialogTitle from "@material-ui/core/DialogTitle"
+import Paper from "@material-ui/core/Paper"
 
 function Home() {
   const [openJoin, setOpenJoin] = useState(false)
@@ -24,32 +25,40 @@ function Home() {
 
   return (
     <>
-      <Grid container justify="center" alignItems="center">
-        <h1>Longest Word Game</h1>
-      </Grid>
       <Grid
         container
         justify="center"
         direction="column"
         alignItems="center"
-        style={{ marginTop: "30vh" }}
+        style={{ marginTop: "25vh" }}
       >
-        <Button
-          variant="contained"
-          color="primary"
-          size="large"
-          onClick={() => setOpenJoin(true)}
-        >
-          Join Game
-        </Button>
-        <Button
-          variant="contained"
-          color="secondary"
-          size="large"
-          onClick={() => setOpenCreate(true)}
-        >
-          Create Game
-        </Button>
+        <Paper elevation={3}>
+          <Grid
+            container
+            justify="space-around"
+            direction="column"
+            alignItems="stretch"
+            style={{ padding: "5rem" }}
+          >
+            <Button
+              variant="contained"
+              color="primary"
+              size="large"
+              onClick={() => setOpenJoin(true)}
+            >
+              Join Game
+            </Button>
+            <br />
+            <Button
+              variant="contained"
+              color="secondary"
+              size="large"
+              onClick={() => setOpenCreate(true)}
+            >
+              Create Game
+            </Button>
+          </Grid>
+        </Paper>
       </Grid>
       {/* Join lobby dialog */}
       <Dialog open={openJoin} onClose={() => setOpenJoin(false)} fullWidth>
