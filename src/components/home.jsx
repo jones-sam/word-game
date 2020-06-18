@@ -22,7 +22,29 @@ function Home() {
 
   const handleJoinSubmit = (e) => {
     e.preventDefault()
-    console.log("Submitted")
+    auth.signInAnonymously().then(() => {
+      auth.currentUser
+        .updateProfile({
+          displayName: name,
+        })
+        .then(() => {
+          let uid = auth.currentUser.uid
+          db.collection("lobbies")
+            .doc(code)
+            .update({
+              ["users." + uid]: {
+                name: auth.currentUser.displayName,
+                points: 0,
+                isReady: false,
+                joined: Date.now(),
+                host: false,
+              },
+            })
+            .then(() => {
+              window.location = `/lobbies/${code}`
+            })
+        })
+    })
   }
 
   const handleCreateSubmit = (e) => {
@@ -49,6 +71,7 @@ function Home() {
               points: 0,
               isReady: false,
               joined: Date.now(),
+              host: true,
             },
           },
           currentLetters: [],
@@ -118,7 +141,7 @@ function Home() {
             <TextField
               id="code"
               value={code}
-              onChange={(e) => setCode(e.target.value)}
+              onChange={(e) => setCode(e.target.value.toUpperCase())}
               label="Access Code"
               type="text"
               fullWidth

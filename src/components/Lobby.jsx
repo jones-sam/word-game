@@ -19,17 +19,36 @@ function Lobby(props) {
   const [loading, setLoading] = useState(true)
   const [data, setData] = useState({})
   const [isReady, setIsReady] = useState(false)
-  const user = auth.currentUser
+  const [allReady, setAllReady] = useState(false)
+  const [isHost, setIsHost] = useState(false)
 
   const lobbyID = props.match.params.code
   console.log(lobbyID)
 
   useEffect(() => {
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        console.log("signed in")
+      } else {
+        console.log("not signed in")
+      }
+    })
+
     let unSub = db.doc(`/lobbies/${lobbyID}`).onSnapshot(
       (doc) => {
         if (doc.exists) {
-          console.log(doc.data())
           setData(doc.data())
+
+          if (doc.data().users[auth.currentUser.uid].host === true) {
+            setIsHost(true)
+          }
+
+          let allReady = _.every(doc.data().users, (user) => user.isReady)
+          if (allReady) {
+            setAllReady(true)
+          } else {
+            setAllReady(false)
+          }
           setLoading(false)
         } else {
           console.log("Lobby not found")
@@ -47,7 +66,7 @@ function Lobby(props) {
 
   const handleReady = () => {
     console.log("ready button")
-    let uid = user.uid
+    let uid = auth.currentUser.uid
     db.doc(`/lobbies/${lobbyID}`)
       .update({
         ["users." + uid + ".isReady"]: !isReady,
@@ -71,14 +90,12 @@ function Lobby(props) {
           <TableContainer component={Paper}>
             <Table>
               <TableBody>
-                {console.log(data.users)}
                 {Object.keys(data.users)
                   .sort()
                   //TODO:   sort by joined date
                   .map((userID) => (
                     <TableRow key={userID}>
                       <TableCell style={{ fontSize: 32, width: "75%" }}>
-                        {console.log(user)}
                         {data.users[userID].name}
                       </TableCell>
                       <TableCell>
@@ -100,9 +117,16 @@ function Lobby(props) {
               >
                 {!isReady ? "Ready?" : "Ready!"}
               </Button>
-              <Button variant="contained" color="primary" size="large">
-                Start
-              </Button>
+              {isHost && (
+                <Button
+                  variant="contained"
+                  color="primary"
+                  size="large"
+                  disabled={!allReady}
+                >
+                  Start
+                </Button>
+              )}
             </Grid>
           </Paper>
         </Grid>
