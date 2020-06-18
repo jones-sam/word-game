@@ -1,8 +1,14 @@
-const functions = require('firebase-functions');
+const functions = require("firebase-functions")
+const { db } = require("./util/admin")
+const admin = require("./util/admin")
 
-// // Create and Deploy Your First Cloud Functions
-// // https://firebase.google.com/docs/functions/write-firebase-functions
-//
-// exports.helloWorld = functions.https.onRequest((request, response) => {
-//  response.send("Hello from Firebase!");
-// });
+// exports.updateUserToLobby = functions.firestore
+//   .document(`/users/{doc}`)
+//   .onWrite((change, context) => {
+//     console.log(change.after.data())
+//     let lobbyID = change.after.data().lobbyID
+
+//     db.doc(`/lobbies/${lobbyID}`).update({
+//       users: admin.firestore.FieldValue.arrayUnion(change.after.data()),
+//     })
+//   })

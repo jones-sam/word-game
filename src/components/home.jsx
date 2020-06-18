@@ -43,13 +43,14 @@ function Home() {
       db.collection("lobbies")
         .doc(lobbyID)
         .set({
-          users: [
-            {
+          users: {
+            [auth.currentUser.uid]: {
               name: auth.currentUser.displayName,
               points: 0,
               isReady: false,
+              joined: Date.now(),
             },
-          ],
+          },
           currentLetters: [],
           roundNumber: 0,
           status: "waiting",
@@ -103,7 +104,7 @@ function Home() {
         <DialogTitle>Join Game</DialogTitle>
         <form onSubmit={handleJoinSubmit}>
           <DialogContent>
-            <DialogContentText>Connect with your friend!</DialogContentText>
+            <DialogContentText>Connect with your friends!</DialogContentText>
             <TextField
               autoFocus
               id="name"
@@ -145,7 +146,7 @@ function Home() {
         <form onSubmit={handleCreateSubmit}>
           <DialogContent>
             <DialogContentText>
-              Create a game and play with a friend!
+              Create a game and play with friends!
             </DialogContentText>
             <TextField
               autoFocus
