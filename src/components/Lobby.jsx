@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react"
-import { db, auth } from "../util/firebase"
+import * as firebase from "firebase"
+
+import { db, auth, myFirebase } from "../util/firebase"
 import _ from "lodash"
 
 // Material UI
@@ -26,14 +28,6 @@ function Lobby(props) {
   console.log(lobbyID)
 
   useEffect(() => {
-    auth.onAuthStateChanged((user) => {
-      if (user) {
-        console.log("signed in")
-      } else {
-        console.log("not signed in")
-      }
-    })
-
     let unSub = db.doc(`/lobbies/${lobbyID}`).onSnapshot(
       (doc) => {
         if (doc.exists) {
@@ -41,6 +35,8 @@ function Lobby(props) {
 
           if (doc.data().users[auth.currentUser.uid].host === true) {
             setIsHost(true)
+          } else {
+            setIsHost(false)
           }
 
           let allReady = _.every(doc.data().users, (user) => user.isReady)
@@ -76,16 +72,39 @@ function Lobby(props) {
       })
   }
 
+  const handleLeave = () => {
+    console.log("leaving")
+    db.collection("lobbies")
+      .doc(lobbyID)
+      .update({
+        users: {
+          [auth.currentUser.uid]: firebase.firestore.FieldValue.delete(),
+        },
+      })
+      .then(() => {
+        auth.signOut().then(() => {
+          window.location = "/"
+        })
+      })
+  }
+
   return (
     <Grid container justify="center" style={{ marginTop: "16px" }}>
       {!loading ? (
         <Grid item style={{ minWidth: "50vw" }}>
           <Paper style={{ padding: "16px", marginBottom: "16px" }}>
-            <Typography variant="h3">Lobby</Typography>
+            <Grid container justify="space-between" alignItems="center">
+              <Typography variant="h3">Lobby</Typography>
+              <Button variant="contained" color="primary" onClick={handleLeave}>
+                Leave
+              </Button>
+            </Grid>
             <Typography variant="h4">{`Code: ${lobbyID}`}</Typography>
-            {/* <Typography variant="caption" color="secondary">{`${
-              data.users.filter((user) => user.isReady === false).length
-            } users need to ready up`}</Typography> */}
+            {!allReady && (
+              <Typography variant="caption" color="secondary">{`${
+                _.filter(data.users, (user) => user.isReady === false).length
+              } users need to ready up`}</Typography>
+            )}
           </Paper>
           <TableContainer component={Paper}>
             <Table>

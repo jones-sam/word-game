@@ -52,35 +52,38 @@ function Home() {
     setLoading(true)
     console.log("Submitted")
     auth.signInAnonymously().then(() => {
-      auth.currentUser.updateProfile({
-        displayName: name,
-      })
-      console.log(auth.currentUser)
-      let lobbyID = keygen._({
-        forceUppercase: true,
-        length: 5,
-        numbers: false,
-      })
-      console.log(lobbyID)
-      db.collection("lobbies")
-        .doc(lobbyID)
-        .set({
-          users: {
-            [auth.currentUser.uid]: {
-              name: auth.currentUser.displayName,
-              points: 0,
-              isReady: false,
-              joined: Date.now(),
-              host: true,
-            },
-          },
-          currentLetters: [],
-          roundNumber: 0,
-          status: "waiting",
+      auth.currentUser
+        .updateProfile({
+          displayName: name,
         })
         .then(() => {
-          setLoading(false)
-          window.location = `/lobbies/${lobbyID}`
+          console.log(auth.currentUser)
+          let lobbyID = keygen._({
+            forceUppercase: true,
+            length: 5,
+            numbers: false,
+          })
+          console.log(lobbyID)
+          db.collection("lobbies")
+            .doc(lobbyID)
+            .set({
+              users: {
+                [auth.currentUser.uid]: {
+                  name: auth.currentUser.displayName,
+                  points: 0,
+                  isReady: false,
+                  joined: Date.now(),
+                  host: true,
+                },
+              },
+              currentLetters: [],
+              roundNumber: 0,
+              status: "waiting",
+            })
+            .then(() => {
+              setLoading(false)
+              window.location = `/lobbies/${lobbyID}`
+            })
         })
     })
   }
