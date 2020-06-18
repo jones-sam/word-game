@@ -10,12 +10,13 @@ function App() {
   auth.onAuthStateChanged((user) => {
     if (user) {
       console.log(`LOGGED IN as ${user.displayName} (${user.uid}) `)
-      db.collection("lobbies")
-        // It might be best to use a subcollection of users rather than a map in the doc
-        .where(`users.${user.uid}`, ">=", {})
+
+      db.collectionGroup("users")
         .get()
         .then((res) => {
-          let lobbyID = res.docs[0].id
+          let lobbyID = res.docs.find((doc) => doc.id === user.uid).ref.parent
+            .parent.id
+
           if (window.location.pathname !== `/lobbies/${lobbyID}`) {
             console.info("Redirecting to lobby " + lobbyID)
             window.location = `/lobbies/${lobbyID}`

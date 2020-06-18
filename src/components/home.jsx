@@ -29,16 +29,15 @@ function Home() {
         })
         .then(() => {
           let uid = auth.currentUser.uid
-          db.collection("lobbies")
-            .doc(code)
-            .update({
-              ["users." + uid]: {
-                name: auth.currentUser.displayName,
-                points: 0,
-                isReady: false,
-                joined: Date.now(),
-                host: false,
-              },
+          db.collection(`lobbies/${code}/users`)
+            .doc(auth.currentUser.uid)
+            .set({
+              name: auth.currentUser.displayName,
+              points: 0,
+              isReady: false,
+              joined: Date.now(),
+              host: false,
+              lobbyID: code,
             })
             .then(() => {
               window.location = `/lobbies/${code}`
@@ -67,20 +66,21 @@ function Home() {
           db.collection("lobbies")
             .doc(lobbyID)
             .set({
-              users: {
-                [auth.currentUser.uid]: {
-                  name: auth.currentUser.displayName,
-                  points: 0,
-                  isReady: false,
-                  joined: Date.now(),
-                  host: true,
-                },
-              },
               currentLetters: [],
               roundNumber: 0,
               status: "waiting",
             })
             .then(() => {
+              db.collection(`lobbies/${lobbyID}/users`)
+                .doc(auth.currentUser.uid)
+                .set({
+                  name: auth.currentUser.displayName,
+                  points: 0,
+                  isReady: false,
+                  joined: Date.now(),
+                  host: true,
+                  lobbyID: lobbyID,
+                })
               setLoading(false)
               window.location = `/lobbies/${lobbyID}`
             })

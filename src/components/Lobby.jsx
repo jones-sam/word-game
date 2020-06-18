@@ -19,7 +19,8 @@ import { Button } from "@material-ui/core"
 
 function Lobby(props) {
   const [loading, setLoading] = useState(true)
-  const [data, setData] = useState({})
+  const [userData, setUserData] = useState([])
+  const [currentUser, setCurrentUser] = useState({})
   const [isReady, setIsReady] = useState(false)
   const [allReady, setAllReady] = useState(false)
   const [isHost, setIsHost] = useState(false)
@@ -28,32 +29,44 @@ function Lobby(props) {
   console.log(lobbyID)
 
   useEffect(() => {
-    let unSub = db.doc(`/lobbies/${lobbyID}`).onSnapshot(
-      (doc) => {
-        if (doc.exists) {
-          setData(doc.data())
+    let unSub = db
+      .collection("lobbies")
+      .doc(lobbyID)
+      .collection("users")
+      .orderBy("joined", "asc")
+      .onSnapshot(
+        (res) => {
+          if (!res.empty) {
+            let userData = []
+            res.docs.forEach((doc) =>
+              userData.push({ ...doc.data(), userID: doc.id })
+            )
+            setUserData(userData)
 
-          if (doc.data().users[auth.currentUser.uid].host === true) {
-            setIsHost(true)
-          } else {
-            setIsHost(false)
-          }
+            let user = res.docs.find((user) => user.id === auth.currentUser.uid)
+            setCurrentUser(user.data())
 
-          let allReady = _.every(doc.data().users, (user) => user.isReady)
-          if (allReady) {
-            setAllReady(true)
+            if (user.data().host === true) {
+              setIsHost(true)
+            } else {
+              setIsHost(false)
+            }
+
+            let allReady = _.every(res.docs, (user) => user.data().isReady)
+            if (allReady) {
+              setAllReady(true)
+            } else {
+              setAllReady(false)
+            }
+            setLoading(false)
           } else {
-            setAllReady(false)
+            console.log("Lobby not found")
           }
-          setLoading(false)
-        } else {
-          console.log("Lobby not found")
+        },
+        (err) => {
+          console.error(err)
         }
-      },
-      (err) => {
-        console.error(err)
-      }
-    )
+      )
     return () => {
       unSub()
       console.log("Unsubbed")
@@ -62,10 +75,9 @@ function Lobby(props) {
 
   const handleReady = () => {
     console.log("ready button")
-    let uid = auth.currentUser.uid
-    db.doc(`/lobbies/${lobbyID}`)
+    db.doc(`/lobbies/${lobbyID}/users/${auth.currentUser.uid}`)
       .update({
-        ["users." + uid + ".isReady"]: !isReady,
+        isReady: !isReady,
       })
       .then(() => {
         setIsReady(!isReady)
@@ -74,18 +86,14 @@ function Lobby(props) {
 
   const handleLeave = () => {
     console.log("leaving")
-    db.collection("lobbies")
-      .doc(lobbyID)
-      .update({
-        users: {
-          [auth.currentUser.uid]: firebase.firestore.FieldValue.delete(),
-        },
-      })
+    db.doc(`lobbies/${lobbyID}/users/${auth.currentUser.uid}`)
+      .delete()
       .then(() => {
-        auth.signOut().then(() => {
-          window.location = "/"
-        })
+        auth.signOut()
+
+        window.location = "/"
       })
+      .catch((err) => console.error(err))
   }
 
   return (
@@ -100,28 +108,26 @@ function Lobby(props) {
               </Button>
             </Grid>
             <Typography variant="h4">{`Code: ${lobbyID}`}</Typography>
+            {console.log(userData)}
             {!allReady && (
               <Typography variant="caption" color="secondary">{`${
-                _.filter(data.users, (user) => user.isReady === false).length
+                _.filter(userData, (user) => user.isReady === false).length
               } users need to ready up`}</Typography>
             )}
           </Paper>
           <TableContainer component={Paper}>
             <Table>
               <TableBody>
-                {Object.keys(data.users)
-                  .sort()
-                  //TODO:   sort by joined date
-                  .map((userID) => (
-                    <TableRow key={userID}>
-                      <TableCell style={{ fontSize: 32, width: "75%" }}>
-                        {data.users[userID].name}
-                      </TableCell>
-                      <TableCell>
-                        {data.users[userID].isReady ? "Ready!" : "Not Ready"}
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                {userData.map((user) => (
+                  <TableRow key={user.userID}>
+                    <TableCell style={{ fontSize: 32, width: "75%" }}>
+                      {user.name}
+                    </TableCell>
+                    <TableCell>
+                      {user.isReady ? "Ready!" : "Not Ready"}
+                    </TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           </TableContainer>
