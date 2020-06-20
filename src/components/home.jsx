@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { db, auth } from "../util/firebase"
 import keygen from "keygenerator"
 
@@ -28,7 +28,6 @@ function Home() {
           displayName: name,
         })
         .then(() => {
-          let uid = auth.currentUser.uid
           db.collection(`lobbies/${code}/users`)
             .doc(auth.currentUser.uid)
             .set({
@@ -37,7 +36,6 @@ function Home() {
               isReady: false,
               joined: Date.now(),
               host: false,
-              lobbyID: code,
             })
             .then(() => {
               window.location = `/lobbies/${code}`
@@ -66,9 +64,7 @@ function Home() {
           db.collection("lobbies")
             .doc(lobbyID)
             .set({
-              currentLetters: [],
-              roundNumber: 0,
-              status: "waiting",
+              status: "in lobby",
             })
             .then(() => {
               db.collection(`lobbies/${lobbyID}/users`)
@@ -79,9 +75,12 @@ function Home() {
                   isReady: false,
                   joined: Date.now(),
                   host: true,
-                  lobbyID: lobbyID,
                 })
+                .catch((err) => console.error(err))
+
               setLoading(false)
+            })
+            .then(() => {
               window.location = `/lobbies/${lobbyID}`
             })
         })
