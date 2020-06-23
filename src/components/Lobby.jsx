@@ -3,7 +3,6 @@ import * as firebase from "firebase"
 import keygen from "keygenerator"
 import { db, auth, myFirebase } from "../util/firebase"
 import _ from "lodash"
-import dayjs from "dayjs"
 
 // Material UI
 import Grid from "@material-ui/core/Grid"

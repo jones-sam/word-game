@@ -7,9 +7,9 @@ export default function Navbar() {
   return (
     <AppBar position="static">
       <Toolbar>
-        <Link to="/">
-          <h1>Longest Word Game</h1>
-        </Link>
+        {/* <Link to="/"> */}
+        <h1>Longest Word Game</h1>
+        {/* </Link> */}
       </Toolbar>
     </AppBar>
   )

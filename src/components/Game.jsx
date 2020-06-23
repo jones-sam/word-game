@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react"
 import { db, auth } from "../util/firebase"
-import dayjs from "dayjs"
+import * as firebase from "firebase"
 import Countdown from "react-countdown"
 import axios from "axios"
 
@@ -56,7 +56,7 @@ export default function Game(props) {
     console.log("TIME UP")
     setLoading(true)
     let points = 0
-    let status = false
+    let message = ""
 
     console.log(userWord.length)
 
@@ -66,19 +66,40 @@ export default function Game(props) {
         console.log(res)
         if (res.data.found) {
           points = res.data.length * 1000
-          status = true
+          message = "Good Job!"
+        } else if (userWord.length === 0) {
+          message = "You did not input a word!"
         } else {
-          status = false
+          message = "Your word is not valid!"
         }
+
+        userWord
+          .toUpperCase()
+          .split("")
+          .forEach((letter) => {
+            if (letters.includes(letter)) {
+              letters.splice(letters.lastIndexOf(letter), 1)
+            } else {
+              points = 0
+              message = "You used a letter that was not available"
+            }
+          })
       })
+      .catch((err) => console.error(err))
       .finally(() => {
-        db.doc(`lobbies/${lobbyID}/rounds/${roundID}`).update({
-          ["userWords." + auth.currentUser.uid]: {
-            word: userWord,
-            points: points,
-            status: status,
-          },
-        })
+        db.doc(`lobbies/${lobbyID}/rounds/${roundID}`)
+          .update({
+            ["userWords." + auth.currentUser.uid]: {
+              word: userWord,
+              points: points,
+              message: message,
+            },
+          })
+          .then(() => {
+            db.doc(`lobbies/${lobbyID}/users/${auth.currentUser.uid}`).update({
+              points: firebase.firestore.FieldValue.increment(points),
+            })
+          })
       })
   }
 
