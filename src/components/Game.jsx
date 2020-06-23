@@ -128,12 +128,7 @@ export default function Game(props) {
     <Grid container justify="center" style={{ marginTop: "16px" }}>
       {!loading ? (
         <>
-          <Grid
-            container
-            justify="center"
-            alignItems="center"
-            // style={{ marginTop: "3rem" }}
-          >
+          <Grid container justify="center" alignItems="center">
             <Paper>
               <Typography variant="h1">Round {roundNumber}</Typography>
             </Paper>
@@ -164,6 +159,7 @@ export default function Game(props) {
                   label="Longest Word"
                   variant="outlined"
                   onChange={(e) => setUserWord(e.target.value)}
+                  autoComplete={false}
                   fullWidth
                 />
                 <Grid

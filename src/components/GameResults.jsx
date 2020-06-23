@@ -17,7 +17,9 @@ import TableContainer from "@material-ui/core/TableContainer"
 import TableRow from "@material-ui/core/TableRow"
 import CircularProgress from "@material-ui/core/CircularProgress"
 import Button from "@material-ui/core/Button"
-
+import Dialog from "@material-ui/core/Dialog"
+import DialogActions from "@material-ui/core/DialogActions"
+import DialogTitle from "@material-ui/core/DialogTitle"
 const useStyles = makeStyles({
   header: {
     fontSize: 16,
@@ -30,6 +32,7 @@ export default function GameResults(props) {
   const [letters, setLetters] = useState([])
   const [loading, setLoading] = useState(true)
   const [isHost, setIsHost] = useState(false)
+  const [open, setOpen] = useState(false)
 
   const classes = useStyles()
   const history = useHistory()
@@ -76,14 +79,21 @@ export default function GameResults(props) {
         console.error(err)
       }
     )
+
+    let unSubLobby = db.doc(`/lobbies/${lobbyID}`).onSnapshot((doc) => {
+      console.log("subbed to lobby")
+      if (doc.exists && doc.data().status === "finished") {
+        auth.signOut()
+        history.push("/")
+      }
+    })
     return () => {
       unSubRounds()
+      unSubLobby()
     }
   }, [])
 
   const handleNextRound = () => {
-    console.log("next round")
-    console.log(history.location.pathname)
     setLoading(true)
     db.doc(`lobbies/${lobbyID}/rounds/${roundID}`)
       .update({
@@ -102,6 +112,20 @@ export default function GameResults(props) {
             history.push(`/lobbies/${lobbyID}/rounds/${parseInt(roundID) + 1}`)
           })
           .catch((err) => console.error(err))
+      })
+      .catch((err) => console.error(err))
+  }
+
+  const handleEndGame = () => {
+    setLoading(true)
+    console.log("ending game")
+    db.doc(`lobbies/${lobbyID}`)
+      .update({
+        status: "finished",
+      })
+      .then(() => {
+        auth.signOut()
+        history.push("/")
       })
       .catch((err) => console.error(err))
   }
@@ -164,7 +188,11 @@ export default function GameResults(props) {
               <Grid container justify="space-evenly">
                 {isHost ? (
                   <>
-                    <Button color="secondary" variant="contained">
+                    <Button
+                      color="secondary"
+                      variant="contained"
+                      onClick={() => setOpen(true)}
+                    >
                       End Game
                     </Button>
                     <Button
@@ -183,6 +211,17 @@ export default function GameResults(props) {
               </Grid>
             </Paper>
           </Grid>
+          <Dialog open={open} onClose={() => setOpen(false)}>
+            <DialogTitle>Are you sure you want to end the game?</DialogTitle>
+            <DialogActions>
+              <Button onClick={() => setOpen(false)} color="primary">
+                Cancel
+              </Button>
+              <Button onClick={handleEndGame} color="secondary">
+                End Game
+              </Button>
+            </DialogActions>
+          </Dialog>
         </>
       ) : (
         <CircularProgress />
