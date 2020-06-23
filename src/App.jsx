@@ -4,6 +4,7 @@ import Home from "./components/Home"
 import Navbar from "./components/Navbar"
 import Lobby from "./components/Lobby"
 import Game from "./components/Game"
+import GameResults from "./components/GameResults"
 import "./App.css"
 import { auth, db } from "./util/firebase"
 
@@ -50,6 +51,11 @@ function App() {
           render={(props) => <Lobby {...props} ongoingGame={ongoingGame} />}
         />
         <Route exact path="/lobbies/:code/rounds/:roundID" component={Game} />
+        <Route
+          exact
+          path="/lobbies/:code/rounds/:roundID/results"
+          component={GameResults}
+        />
       </Switch>
     </Router>
   )

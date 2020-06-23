@@ -3,6 +3,7 @@ import { db, auth } from "../util/firebase"
 import * as firebase from "firebase"
 import Countdown from "react-countdown"
 import axios from "axios"
+import { useHistory } from "react-router-dom"
 
 // Material UI
 import Grid from "@material-ui/core/Grid"
@@ -13,6 +14,8 @@ import Button from "@material-ui/core/Button"
 import CircularProgress from "@material-ui/core/CircularProgress"
 
 export default function Game(props) {
+  const history = useHistory()
+
   const [letters, setLetters] = useState([])
   const [userWord, setUserWord] = useState("")
   const [roundNumber, setRoundNumber] = useState(0)
@@ -87,19 +90,37 @@ export default function Game(props) {
       })
       .catch((err) => console.error(err))
       .finally(() => {
-        db.doc(`lobbies/${lobbyID}/rounds/${roundID}`)
+        let totalPoints
+        db.doc(`lobbies/${lobbyID}/users/${auth.currentUser.uid}`)
+          // Updating total points
           .update({
-            ["userWords." + auth.currentUser.uid]: {
-              word: userWord,
-              points: points,
-              message: message,
-            },
+            points: firebase.firestore.FieldValue.increment(points),
           })
           .then(() => {
-            db.doc(`lobbies/${lobbyID}/users/${auth.currentUser.uid}`).update({
-              points: firebase.firestore.FieldValue.increment(points),
-            })
+            db.doc(`lobbies/${lobbyID}/users/${auth.currentUser.uid}`)
+              //Fetching total points
+              .get()
+              .then((res) => {
+                console.log(res.data())
+                totalPoints = res.data().points
+                db.doc(`lobbies/${lobbyID}/rounds/${roundID}`)
+                  // updating user results
+                  .update({
+                    ["userWords." + auth.currentUser.uid]: {
+                      name: auth.currentUser.displayName,
+                      word: userWord,
+                      points: points,
+                      totalPoints: totalPoints,
+                      message: message,
+                    },
+                  })
+                  .then(() => {
+                    // window.location = window.location.pathname + "/results"
+                    history.push(`${window.location.pathname}/results`)
+                  })
+              })
           })
+          .catch((err) => console.error(err))
       })
   }
 
