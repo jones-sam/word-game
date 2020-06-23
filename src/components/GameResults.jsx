@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react"
 import { db, auth } from "../util/firebase"
+import { useHistory } from "react-router-dom"
 import _ from "lodash"
+import { generateLetters } from "../util/generateLetters"
 
 // Material UI
 import { makeStyles } from "@material-ui/core/styles"
@@ -14,12 +16,9 @@ import TableCell from "@material-ui/core/TableCell"
 import TableContainer from "@material-ui/core/TableContainer"
 import TableRow from "@material-ui/core/TableRow"
 import CircularProgress from "@material-ui/core/CircularProgress"
-import { Button } from "@material-ui/core"
+import Button from "@material-ui/core/Button"
 
 const useStyles = makeStyles({
-  table: {
-    fontSize: 3123,
-  },
   header: {
     fontSize: 16,
     fontWeight: "bold",
@@ -33,6 +32,7 @@ export default function GameResults(props) {
   const [isHost, setIsHost] = useState(false)
 
   const classes = useStyles()
+  const history = useHistory()
 
   const lobbyID = props.match.params.code
   const roundID = props.match.params.roundID
@@ -65,6 +65,10 @@ export default function GameResults(props) {
 
           setUserWords(sortedWordsByScore)
           setLetters(doc.data().letters)
+
+          if (doc.data().status === "finished") {
+            history.push(`/lobbies/${lobbyID}/rounds/${parseInt(roundID) + 1}`)
+          }
           setLoading(false)
         }
       },
@@ -79,7 +83,27 @@ export default function GameResults(props) {
 
   const handleNextRound = () => {
     console.log("next round")
-    // TODO: add next round logic
+    console.log(history.location.pathname)
+    setLoading(true)
+    db.doc(`lobbies/${lobbyID}/rounds/${roundID}`)
+      .update({
+        status: "finished",
+      })
+      .then(() => {
+        let seconds = 20
+        db.collection(`lobbies/${lobbyID}/rounds`)
+          .doc((parseInt(roundID) + 1).toString())
+          .set({
+            roundEndTime: Date.now() + seconds * 1000,
+            letters: generateLetters(8),
+            status: "active",
+          })
+          .then(() => {
+            history.push(`/lobbies/${lobbyID}/rounds/${parseInt(roundID) + 1}`)
+          })
+          .catch((err) => console.error(err))
+      })
+      .catch((err) => console.error(err))
   }
 
   return (

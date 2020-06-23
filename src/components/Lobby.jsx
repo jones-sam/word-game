@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react"
 import * as firebase from "firebase"
-import keygen from "keygenerator"
 import { db, auth, myFirebase } from "../util/firebase"
 import _ from "lodash"
+import { generateLetters } from "../util/generateLetters"
 
 // Material UI
 import Grid from "@material-ui/core/Grid"
@@ -113,16 +113,6 @@ function Lobby(props) {
       .catch((err) => console.error(err))
   }
 
-  const generateLetters = (numOfLetters) => {
-    return keygen
-      ._({
-        forceUppercase: true,
-        length: numOfLetters,
-        numbers: false,
-      })
-      .split("")
-  }
-
   const handleStart = () => {
     console.log("starting")
     setLoading(true)
@@ -132,6 +122,7 @@ function Lobby(props) {
       .set({
         roundEndTime: Date.now() + seconds * 1000,
         letters: generateLetters(8),
+        status: "active",
       })
       .then(() => {
         db.doc(`lobbies/${lobbyID}`)
