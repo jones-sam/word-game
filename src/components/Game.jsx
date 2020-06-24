@@ -4,6 +4,7 @@ import * as firebase from "firebase"
 import Countdown from "react-countdown"
 import axios from "axios"
 import { useHistory } from "react-router-dom"
+import letterValues from "../util/letterValues"
 
 // Material UI
 import Grid from "@material-ui/core/Grid"
@@ -24,9 +25,6 @@ export default function Game(props) {
 
   const lobbyID = props.match.params.code
   const roundID = props.match.params.roundID
-
-  console.log(`lobby: ${lobbyID}`)
-  console.log(`round: ${roundID}`)
 
   useEffect(() => {
     let unSubRounds = db.doc(`lobbies/${lobbyID}/rounds/${roundID}`).onSnapshot(
@@ -68,7 +66,6 @@ export default function Game(props) {
       .then((res) => {
         console.log(res)
         if (res.data.found) {
-          points = res.data.length * 1000
           message = "Good Job!"
         } else if (userWord.length === 0) {
           message = "You did not input a word!"
@@ -81,6 +78,7 @@ export default function Game(props) {
           .split("")
           .forEach((letter) => {
             if (letters.includes(letter)) {
+              points += letterValues[letter]
               letters.splice(letters.lastIndexOf(letter), 1)
             } else {
               points = 0
