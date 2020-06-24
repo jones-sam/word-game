@@ -61,7 +61,7 @@ export default function Navbar() {
           <DialogContentText>
             You will also get a bonus for finding a word before the timer is up.
             For every 2 seconds left on the timer when you lock in, you will
-            earn an additional 2 points.
+            earn an additional point.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
