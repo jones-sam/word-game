@@ -159,7 +159,8 @@ export default function Game(props) {
                   label="Longest Word"
                   variant="outlined"
                   onChange={(e) => setUserWord(e.target.value)}
-                  autoComplete={false}
+                  autoComplete="false"
+                  autoFocus
                   fullWidth
                 />
                 <Grid

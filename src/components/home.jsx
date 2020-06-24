@@ -65,6 +65,8 @@ function Home() {
             .doc(lobbyID)
             .set({
               status: "in lobby",
+              numberOfLetters: 8,
+              numberOfSeconds: 20,
             })
             .then(() => {
               db.collection(`lobbies/${lobbyID}/users`)

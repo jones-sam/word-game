@@ -33,6 +33,8 @@ export default function GameResults(props) {
   const [loading, setLoading] = useState(true)
   const [isHost, setIsHost] = useState(false)
   const [open, setOpen] = useState(false)
+  const [numberOfLetters, setNumberOfLetters] = useState(8)
+  const [numberOfSeconds, setNumberOfSeconds] = useState(20)
 
   const classes = useStyles()
   const history = useHistory()
@@ -82,9 +84,14 @@ export default function GameResults(props) {
 
     let unSubLobby = db.doc(`/lobbies/${lobbyID}`).onSnapshot((doc) => {
       console.log("subbed to lobby")
-      if (doc.exists && doc.data().status === "finished") {
-        auth.signOut()
-        history.push("/")
+      if (doc.exists) {
+        if (doc.data().status === "finished") {
+          auth.signOut()
+          history.push("/")
+        }
+
+        setNumberOfLetters(doc.data().numberOfLetters)
+        setNumberOfSeconds(doc.data().numberOfSeconds)
       }
     })
     return () => {
@@ -95,17 +102,17 @@ export default function GameResults(props) {
 
   const handleNextRound = () => {
     setLoading(true)
+
     db.doc(`lobbies/${lobbyID}/rounds/${roundID}`)
       .update({
         status: "finished",
       })
       .then(() => {
-        let seconds = 20
         db.collection(`lobbies/${lobbyID}/rounds`)
           .doc((parseInt(roundID) + 1).toString())
           .set({
-            roundEndTime: Date.now() + seconds * 1000,
-            letters: generateLetters(8),
+            roundEndTime: Date.now() + numberOfSeconds * 1000,
+            letters: generateLetters(numberOfLetters),
             status: "active",
           })
           .then(() => {

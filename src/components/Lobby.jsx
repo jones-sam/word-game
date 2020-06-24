@@ -15,12 +15,15 @@ import TableRow from "@material-ui/core/TableRow"
 import Paper from "@material-ui/core/Paper"
 import Typography from "@material-ui/core/Typography"
 import CircularProgress from "@material-ui/core/CircularProgress"
-import { Button } from "@material-ui/core"
+import TextField from "@material-ui/core/TextField"
+import Button from "@material-ui/core/Button"
 
 function Lobby(props) {
   const [loading, setLoading] = useState(true)
   const [userData, setUserData] = useState([])
   //   const [currentUser, setCurrentUser] = useState({})
+  const [numberOfLetters, setNumberOfLetters] = useState(8)
+  const [numberOfSeconds, setNumberOfSeconds] = useState(20)
   const [isReady, setIsReady] = useState(false)
   const [allReady, setAllReady] = useState(false)
   const [isHost, setIsHost] = useState(false)
@@ -116,19 +119,27 @@ function Lobby(props) {
   const handleStart = () => {
     console.log("starting")
     setLoading(true)
-    let seconds = 10
-    db.collection(`lobbies/${lobbyID}/rounds`)
-      .doc("1")
-      .set({
-        roundEndTime: Date.now() + seconds * 1000,
-        letters: generateLetters(8),
-        status: "active",
+
+    db.doc(`lobbies/${lobbyID}`)
+      .update({
+        numberOfLetters: parseInt(numberOfLetters),
+        numberOfSeconds: parseInt(numberOfSeconds),
       })
       .then(() => {
-        db.doc(`lobbies/${lobbyID}`)
-          .set({ status: "in game" })
+        db.collection(`lobbies/${lobbyID}/rounds`)
+          .doc("1")
+          .set({
+            roundEndTime: Date.now() + numberOfSeconds * 1000,
+            letters: generateLetters(numberOfLetters),
+            status: "active",
+          })
           .then(() => {
-            window.location = window.location.pathname + `/rounds/1`
+            db.doc(`lobbies/${lobbyID}`)
+              .update({ status: "in game" })
+              .then(() => {
+                window.location = window.location.pathname + `/rounds/1`
+              })
+              .catch((err) => console.error(err))
           })
           .catch((err) => console.error(err))
       })
@@ -189,7 +200,11 @@ function Lobby(props) {
                   variant="contained"
                   color="primary"
                   size="large"
-                  disabled={!allReady}
+                  disabled={
+                    !allReady ||
+                    !(numberOfLetters >= 5 && numberOfLetters <= 50) ||
+                    !(numberOfSeconds >= 5 && numberOfSeconds <= 120)
+                  }
                   onClick={handleStart}
                 >
                   Start
@@ -197,6 +212,41 @@ function Lobby(props) {
               )}
             </Grid>
           </Paper>
+          {isHost && (
+            <Paper style={{ padding: 16, marginTop: 32 }}>
+              <Typography variant="h4">Settings</Typography>
+
+              <Grid
+                container
+                justify="space-evenly"
+                alignItems="center"
+                style={{ padding: 16 }}
+              >
+                <TextField
+                  style={{ margin: 16 }}
+                  id="numberOfLetters"
+                  value={numberOfLetters}
+                  onChange={(e) => setNumberOfLetters(e.target.value)}
+                  label="Number of letters"
+                  helperText="Must be between 5 and 50"
+                  type="number"
+                  variant="outlined"
+                  required
+                />
+                <TextField
+                  style={{ margin: 16 }}
+                  id="numberOfSeconds"
+                  value={numberOfSeconds}
+                  onChange={(e) => setNumberOfSeconds(e.target.value)}
+                  label="Number of seconds"
+                  helperText="Must be between 5 and 120"
+                  type="number"
+                  variant="outlined"
+                  required
+                />
+              </Grid>
+            </Paper>
+          )}
         </Grid>
       ) : (
         <CircularProgress />
