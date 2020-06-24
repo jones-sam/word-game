@@ -44,8 +44,8 @@ export default function Navbar() {
             Scoring
           </DialogContentText>
           <DialogContentText>
-            Each letter of your word have a different value; rarer letters are
-            worth more. We use the same scoring system as Scrabble.
+            Each letter of your word will have a different value; rarer letters
+            are worth more. We use the same letter scoring system as Scrabble.
           </DialogContentText>
           <DialogContentText>
             <ul>

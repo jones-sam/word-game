@@ -69,7 +69,7 @@ export default function Game(props) {
       .then((res) => {
         if (res.data.found) {
           message = "Good Job!"
-          points += timeLeft
+          points += Math.round(timeLeft / 2)
           userWord
             .toUpperCase()
             .split("")
