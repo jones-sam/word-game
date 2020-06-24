@@ -14,6 +14,8 @@ import TextField from "@material-ui/core/TextField"
 import Button from "@material-ui/core/Button"
 import CircularProgress from "@material-ui/core/CircularProgress"
 
+import { AiFillLock, AiFillUnlock } from "react-icons/ai"
+
 export default function Game(props) {
   const history = useHistory()
 
@@ -21,11 +23,12 @@ export default function Game(props) {
   const [userWord, setUserWord] = useState("")
   const [roundNumber, setRoundNumber] = useState(0)
   const [roundEndTime, setRoundEndTime] = useState(0)
+  const [lockedIn, setLockedIn] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [timeLeft, setTimeLeft] = useState(0)
 
   const lobbyID = props.match.params.code
   const roundID = props.match.params.roundID
-
   useEffect(() => {
     let unSubRounds = db.doc(`lobbies/${lobbyID}/rounds/${roundID}`).onSnapshot(
       (doc) => {
@@ -50,7 +53,9 @@ export default function Game(props) {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    console.log("Submitted")
+    console.log("Locked in")
+    setLockedIn(true)
+    setTimeLeft(Math.round((roundEndTime - Date.now()) / 1000))
   }
 
   const handleComplete = () => {
@@ -59,18 +64,17 @@ export default function Game(props) {
     let points = 0
     let message = ""
 
-    console.log(userWord.length)
-
     axios
       .get(`https://wagon-dictionary.herokuapp.com/${userWord}`)
       .then((res) => {
-        console.log(res)
         if (res.data.found) {
           message = "Good Job!"
+          points += timeLeft
         } else if (userWord.length === 0) {
           message = "You did not input a word!"
         } else {
           message = "Your word is not valid!"
+          points = 0
         }
 
         userWord
@@ -99,7 +103,6 @@ export default function Game(props) {
               //Fetching total points
               .get()
               .then((res) => {
-                console.log(res.data())
                 totalPoints = res.data().points
                 db.doc(`lobbies/${lobbyID}/rounds/${roundID}`)
                   // updating user results
@@ -157,6 +160,7 @@ export default function Game(props) {
                   label="Longest Word"
                   variant="outlined"
                   onChange={(e) => setUserWord(e.target.value)}
+                  disabled={lockedIn}
                   autoComplete="false"
                   autoFocus
                   fullWidth
@@ -181,9 +185,22 @@ export default function Game(props) {
                       )}
                     />
                   </Typography>
-                  {/* <Button variant="contained" color="primary" type="submit">
-                    Submit
-                  </Button> */}
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    type="submit"
+                    disabled={lockedIn}
+                  >
+                    {lockedIn ? (
+                      <>
+                        <AiFillLock /> Locked!
+                      </>
+                    ) : (
+                      <>
+                        <AiFillUnlock /> Lock In
+                      </>
+                    )}
+                  </Button>
                 </Grid>
               </form>
             </Paper>
