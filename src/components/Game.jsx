@@ -70,25 +70,25 @@ export default function Game(props) {
         if (res.data.found) {
           message = "Good Job!"
           points += timeLeft
+          userWord
+            .toUpperCase()
+            .split("")
+            .forEach((letter) => {
+              if (letters.includes(letter)) {
+                points += letterValues[letter]
+                letters.splice(letters.lastIndexOf(letter), 1)
+              } else {
+                points = 0
+                message = "You used a letter that was not available"
+              }
+            })
         } else if (userWord.length === 0) {
           message = "You did not input a word!"
+          points = 0
         } else {
           message = "Your word is not valid!"
           points = 0
         }
-
-        userWord
-          .toUpperCase()
-          .split("")
-          .forEach((letter) => {
-            if (letters.includes(letter)) {
-              points += letterValues[letter]
-              letters.splice(letters.lastIndexOf(letter), 1)
-            } else {
-              points = 0
-              message = "You used a letter that was not available"
-            }
-          })
       })
       .catch((err) => console.error(err))
       .finally(() => {
