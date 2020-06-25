@@ -3,6 +3,7 @@ import * as firebase from "firebase"
 import { db, auth, myFirebase } from "../util/firebase"
 import _ from "lodash"
 import { generateLetters } from "../util/generateLetters"
+import { useHistory } from "react-router-dom"
 
 // Material UI
 import Grid from "@material-ui/core/Grid"
@@ -19,6 +20,8 @@ import TextField from "@material-ui/core/TextField"
 import Button from "@material-ui/core/Button"
 
 function Lobby(props) {
+  const history = useHistory()
+
   const [loading, setLoading] = useState(true)
   const [userData, setUserData] = useState([])
   const [numberOfLetters, setNumberOfLetters] = useState(8)
@@ -80,7 +83,7 @@ function Lobby(props) {
     let unSubLobby = db.doc(`lobbies/${lobbyID}`).onSnapshot((res) => {
       if (res.exists && res.data().status === "in game") {
         console.log("game started, redirecting")
-        window.location = window.location.pathname + `/rounds/1`
+        history.push(window.location.pathname + `/rounds/1`)
       } else {
         console.log("lobby in waiting mode")
       }
@@ -109,8 +112,7 @@ function Lobby(props) {
       .delete()
       .then(() => {
         auth.signOut()
-
-        window.location = "/"
+        history.push("/")
       })
       .catch((err) => console.error(err))
   }
@@ -136,7 +138,7 @@ function Lobby(props) {
             db.doc(`lobbies/${lobbyID}`)
               .update({ status: "in game" })
               .then(() => {
-                window.location = window.location.pathname + `/rounds/1`
+                history.push(window.location.pathname + `/rounds/1`)
               })
               .catch((err) => console.error(err))
           })

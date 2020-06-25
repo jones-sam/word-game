@@ -116,7 +116,6 @@ export default function Game(props) {
                     },
                   })
                   .then(() => {
-                    // window.location = window.location.pathname + "/results"
                     history.push(`${window.location.pathname}/results`)
                   })
               })

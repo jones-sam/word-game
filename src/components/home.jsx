@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react"
 import { db, auth } from "../util/firebase"
 import keygen from "keygenerator"
+import { useHistory } from "react-router-dom"
 
 // Material UI
 import Grid from "@material-ui/core/Grid"
@@ -14,6 +15,8 @@ import DialogTitle from "@material-ui/core/DialogTitle"
 import Paper from "@material-ui/core/Paper"
 
 function Home() {
+  const history = useHistory()
+
   const [openJoin, setOpenJoin] = useState(false)
   const [openCreate, setOpenCreate] = useState(false)
   const [name, setName] = useState("")
@@ -45,7 +48,7 @@ function Home() {
                     host: false,
                   })
                   .then(() => {
-                    window.location = `/lobbies/${code}`
+                    history.push(`/lobbies/${code}`)
                   })
                   .catch((err) => console.error(err))
               })
@@ -93,7 +96,7 @@ function Home() {
               setLoading(false)
             })
             .then(() => {
-              window.location = `/lobbies/${lobbyID}`
+              history.push(`/lobbies/${lobbyID}`)
             })
         })
     })
