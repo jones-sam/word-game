@@ -19,29 +19,39 @@ function Home() {
   const [name, setName] = useState("")
   const [code, setCode] = useState("")
   const [loading, setLoading] = useState(false)
+  const [joinError, setJoinError] = useState(false)
 
   const handleJoinSubmit = (e) => {
     e.preventDefault()
-    auth.signInAnonymously().then(() => {
-      auth.currentUser
-        .updateProfile({
-          displayName: name,
-        })
-        .then(() => {
-          db.collection(`lobbies/${code}/users`)
-            .doc(auth.currentUser.uid)
-            .set({
-              name: auth.currentUser.displayName,
-              points: 0,
-              isReady: false,
-              joined: Date.now(),
-              host: false,
-            })
-            .then(() => {
-              window.location = `/lobbies/${code}`
-            })
-        })
-    })
+    db.doc(`lobbies/${code}`)
+      .get()
+      .then((doc) => {
+        if (!doc.exists) {
+          setJoinError(true)
+        } else {
+          auth.signInAnonymously().then(() => {
+            auth.currentUser
+              .updateProfile({
+                displayName: name,
+              })
+              .then(() => {
+                db.collection(`lobbies/${code}/users`)
+                  .doc(auth.currentUser.uid)
+                  .set({
+                    name: auth.currentUser.displayName,
+                    points: 0,
+                    isReady: false,
+                    joined: Date.now(),
+                    host: false,
+                  })
+                  .then(() => {
+                    window.location = `/lobbies/${code}`
+                  })
+                  .catch((err) => console.error(err))
+              })
+          })
+        }
+      })
   }
 
   const handleCreateSubmit = (e) => {
@@ -148,6 +158,8 @@ function Home() {
               onChange={(e) => setCode(e.target.value.toUpperCase())}
               label="Access Code"
               type="text"
+              error={joinError}
+              helperText={joinError && "Lobby not found"}
               fullWidth
               required
             />

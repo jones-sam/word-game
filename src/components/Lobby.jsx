@@ -21,7 +21,6 @@ import Button from "@material-ui/core/Button"
 function Lobby(props) {
   const [loading, setLoading] = useState(true)
   const [userData, setUserData] = useState([])
-  //   const [currentUser, setCurrentUser] = useState({})
   const [numberOfLetters, setNumberOfLetters] = useState(8)
   const [numberOfSeconds, setNumberOfSeconds] = useState(20)
   const [isReady, setIsReady] = useState(false)
@@ -39,6 +38,7 @@ function Lobby(props) {
       .onSnapshot(
         (res) => {
           if (!res.empty) {
+            console.log(`Subbed to ${lobbyID}`)
             let userData = []
             res.docs.forEach((doc) =>
               userData.push({ ...doc.data(), userID: doc.id })
@@ -46,7 +46,6 @@ function Lobby(props) {
             setUserData(userData)
 
             let user = res.docs.find((user) => user.id === auth.currentUser.uid)
-            // setCurrentUser(user.data())
 
             if (user.data().host === true) {
               setIsHost(true)

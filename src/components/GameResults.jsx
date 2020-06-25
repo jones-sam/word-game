@@ -183,7 +183,9 @@ export default function GameResults(props) {
                       >{`"${user.word}"`}</TableCell>
                       <TableCell>{user.points}</TableCell>
                       <TableCell>
-                        {index === 0 ? "You Win!" : user.message}
+                        {index === 0 && user.points > 0
+                          ? "You Win!"
+                          : user.message}
                       </TableCell>
                       <TableCell>{user.totalPoints}</TableCell>
                     </TableRow>
