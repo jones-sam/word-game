@@ -7,6 +7,7 @@ import Dialog from "@material-ui/core/Dialog"
 import DialogActions from "@material-ui/core/DialogActions"
 import DialogContent from "@material-ui/core/DialogContent"
 import DialogContentText from "@material-ui/core/DialogContentText"
+import { DialogTitle } from "@material-ui/core"
 
 export default function Navbar(props) {
   const [open, setOpen] = useState(false)
@@ -33,10 +34,21 @@ export default function Navbar(props) {
         onClose={() => {
           setOpen(false)
         }}
+        scroll="body"
       >
         <DialogContent>
           <DialogContentText variant="h4" color="textPrimary">
             Rules
+          </DialogContentText>
+          <DialogContentText variant="h5" color="textPrimary">
+            Setup
+          </DialogContentText>
+          <DialogContentText variant="body1">
+            Create a lobby and share the access code with your friends! Once
+            everyone has hit the ready button the games can begin.
+          </DialogContentText>
+          <DialogContentText variant="h5" color="textPrimary">
+            Gameplay
           </DialogContentText>
           <DialogContentText variant="body1">
             Each round you will see a list of letters, which you must try to
