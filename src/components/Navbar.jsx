@@ -8,15 +8,17 @@ import DialogActions from "@material-ui/core/DialogActions"
 import DialogContent from "@material-ui/core/DialogContent"
 import DialogContentText from "@material-ui/core/DialogContentText"
 
-export default function Navbar() {
+export default function Navbar(props) {
   const [open, setOpen] = useState(false)
+
   return (
     <>
       <AppBar position="static">
         <Toolbar>
-          {/* <Link to="/"> */}
-          <h1>Longest Word Game</h1>
-          {/* </Link> */}
+          <Link to="/">
+            <h1>Longest Word Game</h1>
+          </Link>
+
           <Button
             color="inherit"
             style={{ marginLeft: "auto" }}

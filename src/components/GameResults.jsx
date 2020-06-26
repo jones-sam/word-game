@@ -101,7 +101,7 @@ export default function GameResults(props) {
   }, [])
 
   const handleNextRound = () => {
-    setLoading(true)
+    // setLoading(true)
 
     db.doc(`lobbies/${lobbyID}/rounds/${roundID}`)
       .update({
