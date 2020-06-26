@@ -127,7 +127,9 @@ export default function Game(props) {
   }
 
   const handleBackspace = () => {
-    setUserWord(userWord.substring(0, userWord.length - 1))
+    if (lockedIn === false) {
+      setUserWord(userWord.substring(0, userWord.length - 1))
+    }
   }
 
   return (
@@ -145,7 +147,9 @@ export default function Game(props) {
                 key={letter + Math.round(Math.random() * 1000000)}
                 style={{ padding: "16px", margin: "16px", minWidth: "42px" }}
                 onClick={() => {
-                  setUserWord(userWord + letter)
+                  if (lockedIn === false) {
+                    setUserWord(userWord + letter)
+                  }
                 }}
               >
                 <Grid container justify="center">
