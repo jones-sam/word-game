@@ -138,7 +138,7 @@ function Lobby(props) {
             db.doc(`lobbies/${lobbyID}`)
               .update({ status: "in game" })
               .then(() => {
-                history.push(window.location.pathname + `/rounds/1`)
+                // history.push(window.location.pathname + `/rounds/1`)
               })
               .catch((err) => console.error(err))
           })

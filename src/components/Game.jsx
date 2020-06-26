@@ -138,6 +138,9 @@ export default function Game(props) {
               <Paper
                 key={letter + Math.round(Math.random() * 1000000)}
                 style={{ padding: "16px", margin: "16px", minWidth: "42px" }}
+                onClick={() => {
+                  setUserWord(userWord + letter)
+                }}
               >
                 <Grid container justify="center">
                   <Typography variant="h3">{letter}</Typography>
@@ -159,6 +162,7 @@ export default function Game(props) {
                   label="Longest Word"
                   variant="outlined"
                   onChange={(e) => setUserWord(e.target.value)}
+                  value={userWord}
                   disabled={lockedIn}
                   autoComplete="false"
                   autoFocus
@@ -166,6 +170,8 @@ export default function Game(props) {
                 />
                 <Grid
                   container
+                  item
+                  xs={12}
                   alignItems="center"
                   justify="space-around"
                   style={{ marginTop: "8px" }}
