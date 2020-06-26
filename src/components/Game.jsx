@@ -182,7 +182,7 @@ export default function Game(props) {
                   value={userWord}
                   disabled={lockedIn}
                   autoComplete="false"
-                  autoFocus
+                  autoFocus={window.innerWidth < 700 ? false : true}
                   fullWidth
                 />
                 <Grid

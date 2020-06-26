@@ -150,7 +150,7 @@ function Lobby(props) {
   return (
     <Grid container justify="center" style={{ marginTop: "16px" }}>
       {!loading ? (
-        <Grid item style={{ minWidth: "50vw" }}>
+        <Grid item style={{ minWidth: "50vw" }} xs={12} md={8} lg={6}>
           <Paper style={{ padding: "16px", marginBottom: "16px" }}>
             <Grid container justify="space-between" alignItems="center">
               <Typography variant="h3">Lobby</Typography>
