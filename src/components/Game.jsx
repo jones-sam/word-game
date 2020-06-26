@@ -15,6 +15,8 @@ import Button from "@material-ui/core/Button"
 import CircularProgress from "@material-ui/core/CircularProgress"
 
 import { AiFillLock, AiFillUnlock } from "react-icons/ai"
+import { MdBackspace } from "react-icons/md"
+import { Box } from "@material-ui/core"
 
 export default function Game(props) {
   const history = useHistory()
@@ -124,6 +126,10 @@ export default function Game(props) {
       })
   }
 
+  const handleBackspace = () => {
+    setUserWord(userWord.substring(0, userWord.length - 1))
+  }
+
   return (
     <Grid container justify="center" style={{ marginTop: "16px" }}>
       {!loading ? (
@@ -148,7 +154,18 @@ export default function Game(props) {
               </Paper>
             ))}
           </Grid>
-          <Grid container alignItems="center" justify="center">
+          <Box display={{ xs: "block", md: "none" }}>
+            <Button
+              variant="contained"
+              color="secondary"
+              size="large"
+              onClick={handleBackspace}
+            >
+              <MdBackspace />
+            </Button>
+          </Box>
+
+          <Grid container alignItems="center" justify="center" item xs={12}>
             <Paper
               style={{
                 minWidth: "60%",
@@ -170,16 +187,14 @@ export default function Game(props) {
                 />
                 <Grid
                   container
-                  item
-                  xs={12}
                   alignItems="center"
                   justify="space-around"
                   style={{ marginTop: "8px" }}
                 >
-                  <Typography variant="h6">
+                  <Typography variant="h6" style={{ margin: 8 }}>
                     <b>Length: {userWord.length}</b>
                   </Typography>
-                  <Typography variant="h6">
+                  <Typography variant="h6" style={{ margin: 8 }}>
                     <Countdown
                       date={roundEndTime}
                       onComplete={handleComplete}
@@ -195,6 +210,7 @@ export default function Game(props) {
                     color="primary"
                     type="submit"
                     disabled={lockedIn}
+                    style={{ margin: 8, minWidth: 250 }}
                   >
                     {lockedIn ? (
                       <>
