@@ -222,6 +222,7 @@ export default function Game(props) {
                 >
                   <Typography variant="h6" style={{ margin: 8 }}>
                     <b>Value: {wordValue}</b>
+                    {timeLeft ? ` + ${Math.round(timeLeft / 2)}` : null}
                   </Typography>
                   <Typography variant="h6" style={{ margin: 8 }}>
                     <Countdown
