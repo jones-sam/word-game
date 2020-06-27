@@ -28,6 +28,7 @@ export default function Game(props) {
   const [lockedIn, setLockedIn] = useState(false)
   const [loading, setLoading] = useState(true)
   const [timeLeft, setTimeLeft] = useState(0)
+  const [wordValue, setWordValue] = useState(0)
 
   const lobbyID = props.match.params.code
   const roundID = props.match.params.roundID
@@ -132,6 +133,15 @@ export default function Game(props) {
     }
   }
 
+  const handleChange = (e) => {
+    setUserWord(e.target.value)
+    let sum = 0
+    e.target.value.split("").forEach((letter) => {
+      sum += parseInt(letterValues[letter.toUpperCase()])
+    })
+    setWordValue(sum)
+  }
+
   return (
     <Grid container justify="center" style={{ marginTop: "16px" }}>
       {!loading ? (
@@ -152,8 +162,16 @@ export default function Game(props) {
                   }
                 }}
               >
-                <Grid container justify="center">
+                <Grid
+                  container
+                  justify="center"
+                  direction="column"
+                  alignItems="center"
+                >
                   <Typography variant="h3">{letter}</Typography>
+                  <Typography variant="caption" color="textSecondary">
+                    {letterValues[letter]}
+                  </Typography>
                 </Grid>
               </Paper>
             ))}
@@ -182,7 +200,7 @@ export default function Game(props) {
                   id="player-word"
                   label="Longest Word"
                   variant="outlined"
-                  onChange={(e) => setUserWord(e.target.value)}
+                  onChange={handleChange}
                   value={userWord}
                   disabled={lockedIn}
                   autoComplete="false"
@@ -196,7 +214,7 @@ export default function Game(props) {
                   style={{ marginTop: "8px" }}
                 >
                   <Typography variant="h6" style={{ margin: 8 }}>
-                    <b>Length: {userWord.length}</b>
+                    <b>Value: {wordValue}</b>
                   </Typography>
                   <Typography variant="h6" style={{ margin: 8 }}>
                     <Countdown
