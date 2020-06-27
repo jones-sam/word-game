@@ -129,14 +129,20 @@ export default function Game(props) {
 
   const handleBackspace = () => {
     if (lockedIn === false) {
-      setUserWord(userWord.substring(0, userWord.length - 1))
+      let wordBackspaced = userWord.substring(0, userWord.length - 1)
+      setUserWord(wordBackspaced)
+      updateWordValue(wordBackspaced)
     }
   }
 
   const handleChange = (e) => {
     setUserWord(e.target.value)
+    updateWordValue(e.target.value)
+  }
+
+  const updateWordValue = (letters) => {
     let sum = 0
-    e.target.value.split("").forEach((letter) => {
+    letters.split("").forEach((letter) => {
       sum += parseInt(letterValues[letter.toUpperCase()])
     })
     setWordValue(sum)
@@ -159,6 +165,7 @@ export default function Game(props) {
                 onClick={() => {
                   if (lockedIn === false) {
                     setUserWord(userWord + letter)
+                    updateWordValue(userWord + letter)
                   }
                 }}
               >
